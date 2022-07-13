@@ -1,0 +1,19 @@
+2022-05-19 16:20:44,481:ERROR:connection to server at "192.168.253.130", port 5432 failed: Connection timed out (0x0000274C/10060)
+	Is the server running on that host and accepting TCP/IP connections?
+
+2022-05-19 16:41:02,625:INFO:connection to server at "192.168.253.130", port 5432 failed: Connection timed out (0x0000274C/10060)
+	Is the server running on that host and accepting TCP/IP connections?
+
+2022-05-19 16:43:19,071:INFO:connection to server at "192.168.253.130", port 5432 failed: Connection timed out (0x0000274C/10060)
+	Is the server running on that host and accepting TCP/IP connections?
+
+2022-05-19 16:43:19,071:ERROR:connection to server at "192.168.253.130", port 5432 failed: Connection timed out (0x0000274C/10060)
+	Is the server running on that host and accepting TCP/IP connections?
+
+2022-05-20 08:35:46,017:ERROR:connection to server at "localhost" (::1), port 5432 failed: Connection refused (0x0000274D/10061)
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused (0x0000274D/10061)
+	Is the server running on that host and accepting TCP/IP connections?
+
+2022-05-20 08:36:14,004:INFO:connected
+2022-05-20 08:59:22,956:INFO:connected

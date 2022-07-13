@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.idea/
+# C extensions
+*.so
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
+
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+venv/
+RabbitMQ/.env
+
+
+RabbitMQ/.idea
+
