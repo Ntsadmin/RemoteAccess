@@ -19,25 +19,26 @@ async def on_message(message: AbstractIncomingMessage) -> None:
     logger.info(f"{message.body} received!")
 
     received_message = json.loads(message.body)
+    print(received_message)
 
-    if len(received_message) == 1:
-        insert_into_table_command = Command(received_message[0])
-        await insert_into_table_command.insertIntoTable()
-
-    else:
-        for item in received_message:
-            insert_into_table_command = Command(item)
-            await insert_into_table_command.insertIntoTable()
+    # if len(received_message) == 1:
+    #     insert_into_table_command = Command(received_message[0])
+    #     await insert_into_table_command.insertIntoTable()
+    #
+    # else:
+    #     for item in received_message:
+    #         insert_into_table_command = Command(item)
+    #         await insert_into_table_command.insertIntoTable()
 
 
 async def main() -> None:
     # Perform connection
-    connection = await connect("amqp://ntsadmin:ntsadmin@192.100.15.88/")
+    connection = await connect("amqp://admin:kjiflm@193.41.79.46:16555/")
     async with connection:
         # Creating a channel
         channel = await connection.channel()
         # Declaring queue
-        queue = await channel.declare_queue("some")
+        queue = await channel.declare_queue("npfactory")
         # Start listening the queue with name 'hello'
         await queue.consume(on_message, no_ack=True)
         print(" [*] Waiting for messages. To exit press CTRL+C")

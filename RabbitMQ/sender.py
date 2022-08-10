@@ -5,7 +5,8 @@ import os
 from aio_pika import Message, connect
 import json
 
-message = b'{\r\n"ID_CMD":10,\r\n"ID_UNIT":13,\r\n"Result":1,\r\n"Mode":1,\r\n"DateTime":"20.05.2022T16:35:32"\r\n}{\r\n"ID_CMD":10,\r\n"ID_UNIT":12,\r\n"Result":1,\r\n"Mode":1,\r\n"DateTime":"20.05.2022T16:35:32"\r\n}'
+message = b'{\r\n"ID_CMD":10,\r\n"ID_UNIT":13,\r\n"Result":1,\r\n"Mode":1,\r\n"DateTime":"20.05.2022T16:35:32"\r\n}{' \
+          b'\r\n"ID_CMD":10,\r\n"ID_UNIT":12,\r\n"Result":1,\r\n"Mode":1,\r\n"DateTime":"20.05.2022T16:35:32"\r\n} '
 result = [{'ID_CMD': 10, 'ID_UNIT': 13, 'Result': 1, 'Mode': 1, 'DateTime': '20.05.2022T16:35:32'}]
 json_message = message.decode('utf-8')
 
