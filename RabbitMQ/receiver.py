@@ -33,7 +33,7 @@ async def on_message(message: AbstractIncomingMessage) -> None:
 
 async def main() -> None:
     # Perform connection
-    connection = await connect("amqp://admin:admin@193.41.79.46:16555/")
+    connection = await connect("amqp://admin:admin@193.41:16555/")
     async with connection:
         # Creating a channel
         channel = await connection.channel()
