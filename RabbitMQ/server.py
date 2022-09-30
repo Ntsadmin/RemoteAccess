@@ -6,30 +6,23 @@ import logging
 import socket
 
 from aio_pika import connect, Message, MessageProcessError
-from commandclass import Command
 from dotenv import load_dotenv
 
-logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+
+logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s:%(message)s')
 load_dotenv()
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-host = 'localhost'
-port = 8080
-FORMAT = 'utf-8'
-
-
-# async def server():
-#     print("[SERVER LISTENING]")
-#     loop = asyncio.get_event_loop()
-#     while True:
-#
-#         conn, addr = await loop.sock_accept(s)
-#         print(f"[CONNECTION ESTABLISHED] {addr}")
-#         loop.create_task(handler(conn, loop))
 
 async def server(hoster, ports):
+    """
+    Define an async server to serve incoming messages. Runs forever even if messages came with errors.
+    :param hoster: host's IP
+    :param ports: host's PORT
+    :return:
+    """
     serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
     serv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     serv_socket.setblocking(False)
@@ -44,35 +37,40 @@ async def server(hoster, ports):
 
 
 async def handler_client(reader, writer):
-    request = None
-    while request != 'quit':
-        request = (await reader.read(255)).decode('utf8')
+    """
+    Handles async incoming messages and resends message to client. By taking the message, you can manipulate them even
+    if the connection between client and server has been terminated.
+    :param reader: reads the incoming messages
+    :param writer: sends messages to the client
+    :return:
+    """
+    request = (await reader.read(255)).decode('utf8')
+    print(request)
 
-        response = str(eval(request))
-        received_message = []
+    writer.write(request.encode('utf8'))
+    try:
+        received_message: list = []
+        first_parentheses: int = 0
+        for index, item in enumerate(request):
+            if item == '{':
+                first_parentheses = index
+            if item == '}':
+                end_parentheses: int = index
+                element = json.dumps(request[first_parentheses:end_parentheses + 1])
+                received_message.append(element)
 
-        writer.write(response.encode('utf8'))
+        async with aiofiles.open('data.txt', 'a') as f:
+            message = json.dumps(received_message)
+            await f.write(message)
+
+    except json.JSONDecodeError:
+        logger.error("Couldn't decode this message !")
+
+    try:
         await writer.drain()
-
-        try:
-            first_parentheses, end_parentheses = 0, 0
-
-            for index, item in enumerate(response):
-                if item == '{':
-                    first_parentheses = index
-                if item == '}':
-                    end_parentheses = index
-                    element = json.dumps(response[first_parentheses:end_parentheses + 1])
-                    received_message.append(element)
-
-            async with aiofiles.open('data.txt', 'a') as f:
-                message = json.dumps(received_message)
-                await f.write(message)
-
-        except json.JSONDecodeError:
-            logger.error("Couldn't decode this message !")
-
-    writer.close()
+        writer.close()
+    except ConnectionResetError:
+        logger.info('client disconnected')
 
 
 # async def handler(conn, loop):
@@ -125,9 +123,13 @@ async def handler_client(reader, writer):
 
 
 async def Rabbit_main():
+    """
+    Script to send messages thought RabbitMQ. reads and formats the data inside 'data.txt', then sends them to consumer.
+    :return:
+    """
     try:
-        connection = await connect(
-            f"amqp//{os.getenv('USERNAME')}:{os.getenv('RABBITPASSWORD')}@{os.getenv('IP')}:{os.getenv('RABBITPORT')}/")
+        connection = await connect(f"amqp://{os.getenv('USERNAME')}:{os.getenv('RABBIT_PASSWORD')}@"
+                                   f"{os.getenv('IP')}:{os.getenv('RABBIT_PORT')}/")
         logger.info("connected to rabbitmq")
 
         async with connection:
@@ -135,7 +137,7 @@ async def Rabbit_main():
 
             queue = await channel.declare_queue("factory")
 
-            first_parentheses, end_parentheses = 0, 0
+            first_parentheses: int = 0
             results = []
 
             async with aiofiles.open('data.txt', 'r+') as f:
@@ -146,14 +148,14 @@ async def Rabbit_main():
                         first_parentheses = index
 
                     if word == '}':
-                        end_parentheses = index
+                        end_parentheses: int = index
                         element = json.loads(file_data[first_parentheses:end_parentheses + 1])
                         results.append(element)
 
                 await f.truncate(0)
 
             file_messages = json.dumps(results)
-            file_messages = file_messages.encode(FORMAT)
+            file_messages = file_messages.encode(os.getenv('FORMAT'))
 
             await channel.default_exchange.publish(
                 Message(file_messages),
@@ -167,4 +169,4 @@ async def Rabbit_main():
 
 
 if __name__ == '__main__':
-    asyncio.run(server(host, port))
+    asyncio.run(server(os.getenv('LOCALHOST'), os.getenv('LOCAL_PORT')))
