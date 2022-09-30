@@ -51,27 +51,33 @@ async def handler_client(reader, writer):
     :param writer: sends messages to the client
     :return:
     """
-    request = (await reader.read(255)).decode('utf8')
-    print(request)
+    request = None
+    while True:
+        request = (await reader.read(255)).decode('utf8')
+        if not request:
+            break
+        print(request)
 
-    writer.write(request.encode('utf8'))
-    try:
-        received_message: list = []
-        first_parentheses: int = 0
-        for index, item in enumerate(request):
-            if item == '{':
-                first_parentheses = index
-            if item == '}':
-                end_parentheses: int = index
-                element = json.dumps(request[first_parentheses:end_parentheses + 1])
-                received_message.append(element)
+        writer.write(request.encode('utf8'))
+        await writer.drain()
+        try:
+            received_message: list = []
+            first_parentheses: int = 0
+            for index, item in enumerate(request):
+                if item == '{':
+                    first_parentheses = index
+                if item == '}':
+                    end_parentheses: int = index
+                    element = json.dumps(request[first_parentheses:end_parentheses + 1])
+                    received_message.append(element)
 
-        async with aiofiles.open('data.txt', 'a') as f:
-            message = json.dumps(received_message)
-            await f.write(message)
+            async with aiofiles.open('data.txt', 'a') as f:
+                message = json.dumps(received_message)
+                await f.write(message)
 
-    except json.JSONDecodeError:
-        logger.error("Couldn't decode this message !")
+        except json.JSONDecodeError:
+            logger.error("Couldn't decode this message !")
+        writer.close()
 
 
 async def Rabbit_main():
@@ -121,4 +127,4 @@ async def Rabbit_main():
 
 
 if __name__ == '__main__':
-    asyncio.run(server(os.getenv('LOCALHOST'), os.getenv('LOCAL_PORT')))
+    asyncio.run(server(os.getenv('LOCALHOST'), int(os.getenv('LOCAL_PORT'))))
