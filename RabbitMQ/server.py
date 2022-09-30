@@ -10,28 +10,35 @@ from dotenv import load_dotenv
 
 
 logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s:%(message)s')
+
+# Create the logging 
+logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+
+# Loading the .env parameters
 load_dotenv()
 
+# Giving the log the depth, that should be monitored
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 async def server(hoster, ports):
     """
-    Define an async server to serve incoming messages. Runs forever even if messages came with errors.
-    :param hoster: host's IP
-    :param ports: host's PORT
-    :return:
+    Creating socket for client-server communication
     """
     serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
     serv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    
+    # Give SSL access to the created socket
     serv_socket.setblocking(False)
     serv_socket.bind((hoster, ports))
     serv_socket.listen(10)
 
+    # Handling the connection with another function
     serv = await asyncio.start_server(handler_client, sock=serv_socket, start_serving=False)
     print('[SERVER READY!]')
 
+    # Keeping the connection running no matter what is the result 
     async with serv:
         await serv.serve_forever()
 
@@ -65,61 +72,6 @@ async def handler_client(reader, writer):
 
     except json.JSONDecodeError:
         logger.error("Couldn't decode this message !")
-
-    try:
-        await writer.drain()
-        writer.close()
-    except ConnectionResetError:
-        logger.info('client disconnected')
-
-
-# async def handler(conn, loop):
-#     while True:
-#         msg = await loop.sock_recv(conn, 1048)
-#         print(f"[Socket received:] {msg}")
-#         received_message = []
-#
-#         try:
-#             json_dumper = msg.decode(FORMAT)
-#
-#             first_parentheses = 0
-#             end_parentheses = 0
-#
-#             for i in range(len(json_dumper)):
-#                 if json_dumper[i] == '{':
-#                     first_parentheses = i
-#
-#                 if json_dumper[i] == '}':
-#                     end_parentheses = i
-#                     element = json_dumper[first_parentheses: end_parentheses + 1]
-#
-#                     element = json.loads(element)
-#                     received_message.append(element)
-#
-#             if len(received_message) == 1:
-#                 json_loader = received_message[0]
-#
-#                 insert_into_table_command = Command(json_loader)
-#                 await insert_into_table_command.insertIntoTable()
-#
-#             else:
-#                 for item in received_message:
-#                     insert_into_table_command = Command(item)
-#                     await insert_into_table_command.insertIntoTable()
-#
-#         except json.JSONDecodeError:
-#             logger.error("couldn't decode or read the message !")
-#
-#         logger.info(f"{received_message} is added to database !")
-#
-#         with open('data.txt', 'a') as f:
-#             message = json.dumps(received_message)
-#             f.write(message)
-#
-#         if not msg:
-#             break
-#         await loop.sock_sendall(conn, msg)
-#     conn.close()
 
 
 async def Rabbit_main():
