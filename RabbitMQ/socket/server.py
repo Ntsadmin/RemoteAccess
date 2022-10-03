@@ -72,7 +72,7 @@ async def handler_client(reader, writer):
                     element = json.loads(request[first_parentheses:end_parentheses + 1])
                     received_message.append(element)
 
-            async with aiofiles.open('data.txt', 'a') as f:
+            async with aiofiles.open('../data.txt', 'a') as f:
                 message = json.dumps(received_message)
                 await f.write(message)
 
@@ -100,7 +100,7 @@ async def Rabbit_main():
             first_parentheses: int = 0
             results = []
 
-            async with aiofiles.open('data.txt', 'r+') as f:
+            async with aiofiles.open('../data.txt', 'r+') as f:
                 file_data = await f.read()
 
                 for index, word in enumerate(file_data):

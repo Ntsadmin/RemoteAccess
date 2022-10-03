@@ -1,0 +1,1 @@
+[{"ID_CMD": 30, "SHIFT_NUM": 2, "DateTime": "20.05.2022T16:35:32"}][{"ID_CMD": 30, "SHIFT_NUM": 2, "DateTime": "20.05.2022T16:35:32"}][{"ID_CMD": 30, "SHIFT_NUM": 2, "DateTime": "20.05.2022T16:35:32"}][{"ID_CMD": 30, "SHIFT_NUM": 2, "DateTime": "20.05.2022T16:35:32"}]

@@ -20,9 +20,5 @@ RabbitMQ/.env
 
 RabbitMQ/.idea
 
-RabbitMQ/data.txt
-RabbitMQ/loggers.log
-RabbitMQ/server.log
-
-RabbitMQ/engines/receiver.log
+*.log
 

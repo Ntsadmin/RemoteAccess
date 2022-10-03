@@ -18,7 +18,7 @@ async def sendMessage(sentMessage) -> None:
     :param sentMessage: list of data to send
     :return:
     """
-    connection = await connect(f"amqp://gregtmj:gregtmj@192.100.1.108:16555/")
+    connection = await connect(f"amqp://{os.getenv('LOCAL_RABBIT_USER')}:{os.getenv('LOCAL_RABBIT_PASSWORD')}@192.100.1.108:16555/")
 
     async with connection:
         # Creating a channel
@@ -37,4 +37,4 @@ async def sendMessage(sentMessage) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(sendMessage(RESULT))
+    asyncio.run(sendMessage(SHIFT))
