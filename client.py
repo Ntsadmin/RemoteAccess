@@ -11,7 +11,7 @@ DISCONNECT_MESSAGE = 'Disconnected'
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-json_message = [{'ID_CMD': 30, 'ShiftNum': 2, 'DateTime': '20.05.2022T16:35:32'}]
+json_message = [{'ID_CMD': 30, 'SHIFT_NUM': 2, 'DateTime': '20.05.2022T16:35:32'}]
 json_result = json.dumps(json_message, ensure_ascii=False)
 
 

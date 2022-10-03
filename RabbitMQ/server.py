@@ -54,9 +54,10 @@ async def handler_client(reader, writer):
     request = None
     while True:
         request = (await reader.read(255)).decode('utf8')
+        client_ip_address, port = reader._transport.get_extra_info('peername')
         if not request:
             break
-        print(request)
+        logger.info(f'received message {request} from {client_ip_address}')
 
         writer.write(request.encode('utf8'))
         await writer.drain()
@@ -68,12 +69,14 @@ async def handler_client(reader, writer):
                     first_parentheses = index
                 if item == '}':
                     end_parentheses: int = index
-                    element = json.dumps(request[first_parentheses:end_parentheses + 1])
+                    element = json.loads(request[first_parentheses:end_parentheses + 1])
                     received_message.append(element)
 
             async with aiofiles.open('data.txt', 'a') as f:
                 message = json.dumps(received_message)
                 await f.write(message)
+
+            # await Rabbit_main()
 
         except json.JSONDecodeError:
             logger.error("Couldn't decode this message !")
@@ -86,14 +89,13 @@ async def Rabbit_main():
     :return:
     """
     try:
-        connection = await connect(f"amqp://{os.getenv('USERNAME')}:{os.getenv('RABBIT_PASSWORD')}@"
-                                   f"{os.getenv('IP')}:{os.getenv('RABBIT_PORT')}/")
+        connection = await connect(f"amqp://{os.getenv('RABBIT_USER')}:{os.getenv('RABBIT_PASSWORD')}@192.100.1.108:16555/")
         logger.info("connected to rabbitmq")
 
         async with connection:
             channel = await connection.channel()
 
-            queue = await channel.declare_queue("factory")
+            queue = await channel.declare_queue("new")
 
             first_parentheses: int = 0
             results = []
@@ -107,7 +109,8 @@ async def Rabbit_main():
 
                     if word == '}':
                         end_parentheses: int = index
-                        element = json.loads(file_data[first_parentheses:end_parentheses + 1])
+                        element = file_data[first_parentheses: end_parentheses + 1]
+                        element = json.loads(element)
                         results.append(element)
 
                 await f.truncate(0)

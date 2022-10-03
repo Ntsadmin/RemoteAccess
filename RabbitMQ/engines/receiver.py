@@ -24,8 +24,10 @@ async def on_message(message: AbstractIncomingMessage) -> None:
     with pydantic, then tries to store them in database.
     """
     received_message = json.loads(message.body)
+    print(received_message)
 
     for item in received_message:
+        print(item)
         if item['ID_CMD'] == 10:
             try:
                 operation: OperationCommand = OperationCommand(
